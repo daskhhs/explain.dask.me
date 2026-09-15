@@ -1,20 +1,13 @@
-import { callGemini } from "./ai/gemini";
-import { callGroq } from "./ai/groq";
-import { callOpenRouter } from "./ai/openrouter";
 import {
   AiProviderError,
   MissingApiKeyError,
-  resolveProvider,
-  type AiProviderName,
+  callAiWithFallback,
   type ChatMessage,
 } from "./ai/provider";
 import type { CodeExplanation, CodeLanguage } from "@/types/code";
 
 export {
-  resolveProvider,
-  getPreferredProvider,
   getAvailableProviders,
-  providerEnvVar,
   MissingApiKeyError,
   AiProviderError,
 } from "./ai/provider";
@@ -48,20 +41,6 @@ function buildUserPrompt(code: string, language: CodeLanguage): string {
     code.trim(),
     "```",
   ].join("\n");
-}
-
-async function callProvider(
-  provider: AiProviderName,
-  messages: ChatMessage[]
-): Promise<string> {
-  switch (provider) {
-    case "gemini":
-      return callGemini(messages);
-    case "groq":
-      return callGroq(messages);
-    case "openrouter":
-      return callOpenRouter(messages);
-  }
 }
 
 function extractJson(text: string): unknown {
@@ -116,24 +95,19 @@ export async function explainCode(
   code: string,
   language: CodeLanguage
 ): Promise<CodeExplanation> {
-  const provider = resolveProvider();
-  if (!provider) {
-    throw new MissingApiKeyError("gemini", "GEMINI_API_KEY");
-  }
-
   const messages: ChatMessage[] = [
     { role: "system", content: SYSTEM_PROMPT },
     { role: "user", content: buildUserPrompt(code, language) },
   ];
 
   try {
-    const rawText = await callProvider(provider, messages);
+    const { text: rawText, provider } = await callAiWithFallback(messages);
     return normalize(extractJson(rawText), provider);
   } catch (err) {
     if (err instanceof MissingApiKeyError || err instanceof AiProviderError) {
       throw err;
     }
     const message = err instanceof Error ? err.message : "Something went sideways explaining that.";
-    throw new AiProviderError(provider, message);
+    throw new AiProviderError(message);
   }
 }

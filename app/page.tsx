@@ -97,7 +97,7 @@ export default function Home() {
         )}
 
         {status === "result" && explanation && (
-          <div className="space-y-6 border-t border-[var(--border)] pt-8">
+          <div className="animate-fade-in-up space-y-6 border-t border-[var(--border)] pt-8">
             <div className="flex items-center justify-between gap-3">
               <h2 className="font-display text-lg text-[var(--ink)]">Breakdown</h2>
               <button

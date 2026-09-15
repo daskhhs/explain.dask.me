@@ -27,7 +27,7 @@ export function LanguageSelector({
         value={value}
         onChange={(e) => onChange(e.target.value as CodeLanguage)}
         disabled={disabled}
-        className="rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-1 text-xs text-[var(--ink)] outline-none focus:border-[var(--accent)] disabled:opacity-50"
+        className="rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-1 text-base sm:text-xs text-[var(--ink)] outline-none focus:border-[var(--accent)] disabled:opacity-50"
       >
         {LANGUAGES.map((opt) => (
           <option key={opt.value} value={opt.value}>

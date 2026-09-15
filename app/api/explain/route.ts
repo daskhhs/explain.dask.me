@@ -46,14 +46,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ explanation });
   } catch (err) {
     if (err instanceof MissingApiKeyError) {
+      console.error("Explain My Code: missing API key", err);
       return NextResponse.json(
-        { error: err.message, code: "MISSING_API_KEY" },
+        { error: "This tool isn't fully set up yet — please check back soon.", code: "MISSING_API_KEY" },
         { status: 503 }
       );
     }
     if (err instanceof AiProviderError) {
+      console.error("Explain My Code: upstream AI provider error", err);
       return NextResponse.json(
-        { error: err.message, code: "UPSTREAM_ERROR" },
+        { error: "Something went wrong while explaining that code. Please try again in a moment.", code: "UPSTREAM_ERROR" },
         { status: 502 }
       );
     }
